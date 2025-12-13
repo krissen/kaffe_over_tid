@@ -80,7 +80,7 @@ cups,t
 ```
 
 **Columns**: `cups` (integer 1-20), `t` (time string "m:ss")
-**Time formats accepted**: `3:30`, `3'30`, `3'30`, `3m30s`, `3 30`
+**Time formats**: Accepts `3:30`, `3'30` (various apostrophes), `3m30s`, `3 30` - all parsed to seconds
 **Minimum**: ≥5 rows required for modeling
 
 ## Architecture: Shared Library Pattern
