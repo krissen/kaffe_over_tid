@@ -1,0 +1,339 @@
+/* Retro-inspired aesthetic for Moccamaster Coffee Analysis */
+
+/* Color palette inspired by coffee and Moccamaster Classic (silver + black) */
+:root {
+  --primary-color: #3e2723;      /* Dark roasted coffee brown */
+  --secondary-color: #6d4c41;    /* Medium coffee brown */
+  --accent-color: #8d6e63;       /* Light coffee/latte brown */
+  --silver: #c0c0c0;             /* Moccamaster Classic silver */
+  --silver-light: #e8e8e8;       /* Light silver gradient */
+  --dark-silver: #a0a0a0;        /* Darker silver */
+  --black: #1a1a1a;              /* Coffee black */
+  --background: #f5f1ed;         /* Cream/latte background */
+  --text-dark: #2c2013;          /* Dark coffee text */
+  --text-light: #6d5d4f;         /* Light coffee text */
+  --border-color: #d4cdc3;       /* Subtle cream border */
+  --hover-color: #5d4037;        /* Dark coffee hover */
+  --success-color: #6d4c41;      /* Coffee brown for success */
+  --terminal-bg: #1a1a1a;        /* Terminal background */
+  --terminal-text: #d4cdc3;      /* Terminal text */
+}
+
+body {
+  background: var(--background);
+  font-family: 'Courier New', 'Monaco', monospace;
+  color: var(--text-dark);
+  line-height: 1.5;
+}
+
+/* Header styling */
+.navbar {
+  background-color: var(--primary-color) !important;
+  border-bottom: 3px solid var(--secondary-color);
+  padding: 15px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3, h4 {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-family: 'Courier New', 'Monaco', monospace;
+  letter-spacing: 0.5px;
+}
+
+.title-panel {
+  background: linear-gradient(135deg, var(--silver) 0%, var(--silver-light) 100%);
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-bottom: 3px solid var(--primary-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.title-panel .row {
+  display: flex;
+  align-items: stretch;
+}
+
+.title-panel h2 {
+  margin: 0;
+  padding: 0;
+  color: var(--primary-color);
+  font-size: 1.8em;
+  line-height: 1.2;
+}
+
+.title-panel .text-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+
+.subtitle {
+  color: var(--text-light);
+  font-size: 0.85em;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Sidebar styling */
+.well {
+  background-color: #faf8f5;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  padding: 12px;
+  font-size: 0.9em;
+}
+
+.sidebar {
+  background-color: #faf8f5 !important;
+}
+
+.sidebar h3, .sidebar h4 {
+  font-size: 1.1em;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.sidebar p {
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+/* Input styling - retro terminal-like */
+input[type="number"],
+input[type="text"],
+select,
+textarea {
+  border: 1px solid var(--dark-silver);
+  border-radius: 2px;
+  padding: 6px 10px;
+  font-size: 0.9em;
+  font-family: 'Courier New', 'Monaco', monospace;
+  background-color: #fefdfb;
+  transition: border-color 0.2s ease;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--secondary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(109, 76, 65, 0.15);
+  background-color: white;
+}
+
+/* Button styling - retro coffee theme */
+.btn-primary {
+  background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+  border: 1px solid var(--primary-color);
+  color: white;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: linear-gradient(180deg, var(--hover-color) 0%, var(--black) 100%);
+  border-color: var(--black);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-success {
+  background: linear-gradient(180deg, var(--accent-color) 0%, var(--secondary-color) 100%);
+  border: 1px solid var(--secondary-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 2px;
+  font-weight: 500;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+/* Table styling - retro coffee theme */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fefdfb;
+  border: 1px solid var(--border-color);
+  font-size: 0.9em;
+}
+
+table thead {
+  background: linear-gradient(180deg, var(--accent-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 500;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+table tbody tr:hover {
+  background-color: rgba(141, 110, 99, 0.08);
+}
+
+table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Tab styling - retro look */
+.nav-tabs {
+  border-bottom: 2px solid var(--primary-color);
+  background: linear-gradient(180deg, transparent 0%, rgba(62, 39, 35, 0.03) 100%);
+}
+
+.nav-tabs > li > a {
+  color: var(--text-dark);
+  border-radius: 2px 2px 0 0;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 0.95em;
+  padding: 8px 15px;
+}
+
+.nav-tabs > li > a:hover {
+  background-color: rgba(141, 110, 99, 0.1);
+  border-color: var(--border-color);
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  background: linear-gradient(180deg, #fefdfb 0%, white 100%);
+  border: 1px solid var(--primary-color);
+  border-bottom-color: white;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.tab-content {
+  background-color: white;
+  padding: 15px;
+  border: 1px solid var(--primary-color);
+  border-top: none;
+}
+
+/* Plot container */
+.plot-container {
+  background-color: white;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  box-shadow: inset 0 0 8px rgba(62, 39, 35, 0.05);
+}
+
+/* Info text styling */
+.info-text {
+  background-color: #f9f5f0;
+  border-left: 3px solid var(--accent-color);
+  padding: 8px 10px;
+  margin: 10px 0;
+  border-radius: 2px;
+  font-size: 0.8em;
+}
+
+/* HR styling */
+hr {
+  border: none;
+  border-top: 2px solid var(--border-color);
+  margin: 20px 0;
+}
+
+/* Notification styling */
+.shiny-notification {
+  border-radius: 6px;
+  border-left: 5px solid var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-weight: 500;
+}
+
+.shiny-notification-error {
+  border-left-color: #e74c3c;
+}
+
+.shiny-notification-message {
+  border-left-color: var(--success-color);
+}
+
+/* Logo styling */
+.logo-container {
+  text-align: center;
+  padding: 5px;
+  margin: 0;
+}
+
+.logo-container img {
+  max-width: 60px;
+  height: auto;
+  opacity: 0.95;
+  border-radius: 3px;
+}
+
+/* Model info styling */
+pre {
+  background-color: var(--terminal-bg);
+  color: var(--terminal-text);
+  border: 1px solid var(--primary-color);
+  border-radius: 2px;
+  padding: 12px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.85em;
+  line-height: 1.4;
+  overflow-x: auto;
+}
+
+/* Utility classes for common inline styles */
+.description-text {
+  font-size: 0.9em;
+  color: var(--text-light);
+}
+
+.interpretation-section {
+  font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .title-panel {
+    padding: 15px;
+  }
+  
+  .well {
+    padding: 15px;
+  }
+  
+  table th,
+  table td {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+}
+
+/* Add subtle animation to page load */
+.container-fluid {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

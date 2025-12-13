@@ -1,14 +1,25 @@
-# Kaffekok: Tid per Kopp
+<div align="center">
+  <img src="img/moccamaster_logo-text.png" alt="Moccamaster" width="200"/>
+  
+  # Kaffekok: Tid per Kopp
+  
+  ### Analys av bryggtid för Moccamaster Classic
+  
+  <img src="img/moccamaster_classic.jpg" alt="Moccamaster Classic" width="400"/>
+  
+  *Analys av tid för kaffekokning baserat på antal koppar, med både ett kommandoradsskript och en interaktiv Shiny-app.*
+</div>
 
-Analys av tid för kaffekokning baserat på antal koppar, med både ett kommandoradsskript och en interaktiv Shiny-app.
+---
 
-## Funktioner
+## 📊 Funktioner
 
-- **Dataanalys**: Kvadratisk regressionsmodell för tid vs antal koppar
-- **Prediktioner**: 95% prediktionsintervall för 1-10 koppar
-- **Visualisering**: Plottar med data och prediktionsintervall
-- **Datainmatning**: Lägg till nya mätningar via Shiny-appen
-- **Delade bibliotek**: En källkod för både scriptet och appen (DRY-princip)
+- **☕ Moccamaster Classic**: Specialanpassad för att analysera bryggtider för denna ikoniska kaffebryggare
+- **📈 Dataanalys**: Kvadratisk regressionsmodell för tid vs antal koppar
+- **🎯 Prediktioner**: 95% prediktionsintervall för 1-10 koppar
+- **📉 Visualisering**: Plottar med data och prediktionsintervall
+- **➕ Datainmatning**: Lägg till nya mätningar via Shiny-appen
+- **♻️ Delade bibliotek**: En källkod för både scriptet och appen (DRY-princip)
 
 ## Struktur
 
@@ -39,7 +50,7 @@ Detta skapar:
 - `fig/klassisk_fit.png` - Visualisering av modellen
 - `pred_klassisk_1_10.csv` - Prediktioner för 1-10 koppar
 
-### Shiny-app
+### 🌐 Shiny-app
 
 Starta den interaktiva appen:
 
@@ -49,11 +60,15 @@ Rscript app.R
 
 Appen kommer automatiskt att öppnas i din webbläsare (macOS: `open`, Linux: `xdg-open`).
 
-I appen kan du:
-1. Se alla befintliga mätningar
-2. Lägga till nya mätningar (antal koppar + tid)
-3. Se uppdaterade prediktioner och plottar direkt
-4. Ladda ner prediktioner som CSV
+**I appen kan du:**
+1. 📋 Se alla befintliga mätningar från din Moccamaster Classic
+2. ➕ Lägga till nya mätningar (antal koppar + tid)
+3. 📊 Se uppdaterade prediktioner och plottar direkt
+4. 💾 Ladda ner prediktioner som CSV
+
+<div align="center">
+  <em>Modern, retro-inspirerad design som kompletterar Moccamasters tidlösa estetik</em>
+</div>
 
 ## Dataformat
 
