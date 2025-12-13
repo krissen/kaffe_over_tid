@@ -5,18 +5,33 @@
 # ============================
 # Setup
 # ============================
+cat("Laddar bibliotek...\n")
+
 app_dir <- getwd()
-source("R/load_libs.R")
+
+tryCatch({
+  source("R/load_libs.R")
+  cat("Delade bibliotek laddade.\n")
+}, error = function(e) {
+  cat("FEL vid laddning av delade bibliotek:\n")
+  cat(e$message, "\n")
+  quit(status = 1)
+})
 
 # Additional packages for Shiny
 shiny_pkgs <- c("shiny")
 install_if_missing(shiny_pkgs)
-library(shiny)
+
+suppressPackageStartupMessages({
+  library(shiny)
+})
+cat("Shiny laddat.\n")
 
 csv_path <- "kaffedata.csv"
 
 # Initialize CSV if missing
 initialize_csv_if_missing(csv_path)
+cat("Data initierad.\n")
 
 # ============================
 # UI
