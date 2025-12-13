@@ -195,41 +195,51 @@ server <- function(input, output, session) {
 # ============================
 # Run app with auto-open browser
 # ============================
-# Check if running from Rscript
+# Function to open browser on macOS
+open_browser <- function(url) {
+  # Validate URL is properly formatted (localhost/IP with port)
+  if (!grepl("^https?://[a-zA-Z0-9\\.:-]+(/.*)?$", url)) {
+    warning("Invalid URL format: ", url)
+    return(FALSE)
+  }
+  
+  tryCatch({
+    if (Sys.info()["sysname"] == "Darwin") {
+      # macOS: use 'open' command
+      system(paste("open", shQuote(url)), wait = FALSE)
+    } else if (Sys.info()["sysname"] == "Linux") {
+      # Linux: use 'xdg-open' command
+      system(paste("xdg-open", shQuote(url)), wait = FALSE)
+    } else if (Sys.info()["sysname"] == "Windows") {
+      # Windows: use shell.exec (validate first)
+      if (grepl("^https?://127\\.0\\.0\\.1:[0-9]+$", url)) {
+        shell.exec(url)
+      }
+    }
+  }, error = function(e) {
+    warning("Could not open browser: ", e$message)
+  })
+}
+
+# Check if running from Rscript (non-interactive)
 if (!interactive()) {
   # Get host and port
   port <- 3838
   host <- "127.0.0.1"
   
-  # Create the app URL
-  app_url <- paste0("http://", host, ":", port)
-  
-  # Function to open browser on macOS
-  open_browser <- function(url) {
-    # Validate URL format to prevent command injection
-    if (!grepl("^https?://[a-zA-Z0-9\\.:]+(/.*)?$", url)) {
-      warning("Invalid URL format: ", url)
-      return(FALSE)
-    }
-    
-    if (Sys.info()["sysname"] == "Darwin") {
-      system(paste("open", shQuote(url)), wait = FALSE)
-    } else if (Sys.info()["sysname"] == "Linux") {
-      system(paste("xdg-open", shQuote(url)), wait = FALSE)
-    } else if (Sys.info()["sysname"] == "Windows") {
-      shell.exec(url)
-    }
-  }
+  cat("Startar Shiny-appen...\n")
+  cat("URL: http://", host, ":", port, "\n", sep = "")
   
   # Set options for browser launch
   options(shiny.launch.browser = function(url) {
-    message("Öppnar webbläsare: ", url)
+    cat("Öppnar webbläsare: ", url, "\n", sep = "")
+    Sys.sleep(1)  # Give server a moment to start
     open_browser(url)
   })
   
   # Run the app
   runApp(
-    appDir = getwd(),
+    list(ui = ui, server = server),
     host = host,
     port = port,
     launch.browser = TRUE

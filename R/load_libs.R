@@ -23,15 +23,11 @@ suppressPackageStartupMessages({
 # Find R directory relative to current working directory
 if (dir.exists("R")) {
   r_dir <- "R"
-} else if (dir.exists(file.path(getwd(), "R"))) {
-  r_dir <- file.path(getwd(), "R")
-} else {
+} else if (exists("app_dir") && dir.exists(file.path(app_dir, "R"))) {
   # Try to use app_dir if it was set before sourcing
-  if (exists("app_dir") && dir.exists(file.path(app_dir, "R"))) {
-    r_dir <- file.path(app_dir, "R")
-  } else {
-    stop("Cannot find R/ directory with shared libraries. Make sure to run from the project root directory.")
-  }
+  r_dir <- file.path(app_dir, "R")
+} else {
+  stop("Cannot find R/ directory with shared libraries. Make sure to run from the project root directory.")
 }
 
 source(file.path(r_dir, "time_utils.R"))
