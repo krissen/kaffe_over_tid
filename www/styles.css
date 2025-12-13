@@ -6,6 +6,7 @@
   --secondary-color: #6d4c41;    /* Medium coffee brown */
   --accent-color: #8d6e63;       /* Light coffee/latte brown */
   --silver: #c0c0c0;             /* Moccamaster Classic silver */
+  --silver-light: #e8e8e8;       /* Light silver gradient */
   --dark-silver: #a0a0a0;        /* Darker silver */
   --black: #1a1a1a;              /* Coffee black */
   --background: #f5f1ed;         /* Cream/latte background */
@@ -14,6 +15,8 @@
   --border-color: #d4cdc3;       /* Subtle cream border */
   --hover-color: #5d4037;        /* Dark coffee hover */
   --success-color: #6d4c41;      /* Coffee brown for success */
+  --terminal-bg: #1a1a1a;        /* Terminal background */
+  --terminal-text: #d4cdc3;      /* Terminal text */
 }
 
 body {
@@ -39,7 +42,7 @@ h1, h2, h3, h4 {
 }
 
 .title-panel {
-  background: linear-gradient(135deg, var(--silver) 0%, #e8e8e8 100%);
+  background: linear-gradient(135deg, var(--silver) 0%, var(--silver-light) 100%);
   padding: 10px 15px;
   margin-bottom: 15px;
   border-bottom: 3px solid var(--primary-color);
@@ -269,8 +272,8 @@ hr {
 
 /* Model info styling */
 pre {
-  background-color: #1a1a1a;
-  color: #d4cdc3;
+  background-color: var(--terminal-bg);
+  color: var(--terminal-text);
   border: 1px solid var(--primary-color);
   border-radius: 2px;
   padding: 12px;
@@ -278,6 +281,16 @@ pre {
   font-size: 0.85em;
   line-height: 1.4;
   overflow-x: auto;
+}
+
+/* Utility classes for common inline styles */
+.description-text {
+  font-size: 0.9em;
+  color: var(--text-light);
+}
+
+.interpretation-section {
+  font-size: 0.9em;
 }
 
 /* Responsive adjustments */

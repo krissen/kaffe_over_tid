@@ -34,7 +34,7 @@ ui <- fluidPage(
       tabsetPanel(
         tabPanel("Prediktioner",
                  h3("Prognoser 1-10 koppar"),
-                 p(style = "font-size: 0.9em; color: var(--text-light);", 
+                 p(class = "description-text",
                    "Baserat på mätningar från ", strong("Moccamaster Classic")),
                  tableOutput("predictions_table"),
                  hr(),
@@ -45,7 +45,7 @@ ui <- fluidPage(
                    plotOutput("classical_plot", height = "500px")
                  ),
                  hr(),
-                 div(style = "font-size: 0.9em;",
+                 div(class = "interpretation-section",
                    h4("Tolkning:"),
                    p("Punkterna visar faktiska mätningar från ", strong("Moccamaster Classic"), "."),
                    p("Linjen visar modellens prediktion (kvadratisk modell)."),
