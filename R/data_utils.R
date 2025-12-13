@@ -73,9 +73,14 @@ add_coffee_entry <- function(csv_path, cups, time_str) {
   }
 
   df <- df %>% dplyr::mutate(cups = as.integer(cups), t = as.character(t))
-  
+
+  # Normalisera tidssträngar till formatet m:ss för både befintliga och nya rader
+  normalize_time <- function(x) fmt_time(parse_time(x))
+  df <- df %>% dplyr::mutate(t = vapply(t, normalize_time, character(1)))
+  time_str_norm <- normalize_time(time_str)
+
   # Add new row
-  new_row <- tibble::tibble(cups = cups, t = time_str)
+  new_row <- tibble::tibble(cups = cups, t = time_str_norm)
   df <- dplyr::bind_rows(df, new_row)
   
   # Write back to CSV
