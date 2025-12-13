@@ -56,9 +56,31 @@ add_coffee_entry <- function(csv_path, cups, time_str) {
 
   # Read existing data
   df <- readr::read_csv(csv_path, show_col_types = FALSE)
-  
+
+  # Normalize column names and types to avoid type-mismatch errors when binding
+  names(df) <- tolower(names(df))
+
+  if (!("cups" %in% names(df))) stop("CSV måste ha kolumnen 'cups'.")
+
+  if ("t" %in% names(df)) {
+    # ok
+  } else if ("tid" %in% names(df)) {
+    df <- dplyr::rename(df, t = tid)
+  } else if ("time" %in% names(df)) {
+    df <- dplyr::rename(df, t = time)
+  } else {
+    stop("CSV måste ha tidskolumnen 't' (eller 'time'/'tid').")
+  }
+
+  df <- df %>% dplyr::mutate(cups = as.integer(cups), t = as.character(t))
+
+  # Normalisera tidssträngar till formatet m:ss för både befintliga och nya rader
+  normalize_time <- function(x) fmt_time(parse_time(x))
+  df <- df %>% dplyr::mutate(t = vapply(t, normalize_time, character(1)))
+  time_str_norm <- normalize_time(time_str)
+
   # Add new row
-  new_row <- tibble::tibble(cups = cups, t = time_str)
+  new_row <- tibble::tibble(cups = cups, t = time_str_norm)
   df <- dplyr::bind_rows(df, new_row)
   
   # Write back to CSV
