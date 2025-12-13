@@ -15,186 +15,54 @@ close_threshold_aic  <- 2.0   # ΔAIC < 2 => "nära"
 close_threshold_loo  <- 1.0   # |elpd_diff| < 1 => "nära" (grovt)
 
 # ============================
-# 1) Paket
+# 1) Ladda delade bibliotek
 # ============================
-need <- c("ggplot2", "dplyr", "readr", "tibble")
-install_if_missing <- function(pkgs) {
-  miss <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
-  if (length(miss)) install.packages(miss, repos = "https://cloud.r-project.org")
-}
-install_if_missing(need)
-
-suppressPackageStartupMessages({
-  library(ggplot2)
-  library(dplyr)
-  library(readr)
-  library(tibble)
-})
-
-# Bayes (valfritt)
-bayes_need <- c("rstanarm", "loo")
-bayes_available <- all(vapply(bayes_need, requireNamespace, logical(1), quietly = TRUE))
+source("R/load_libs.R")
 
 # ============================
-# 2) Tid: parse + format
+# 2) Skapa ny CSV om den saknas
 # ============================
-parse_time <- function(x) {
-  x <- trimws(as.character(x))
-
-  # normalisera separatorer: 3’06, 3'06, 3:06, 3 06, 3m06s, etc.
-  x <- gsub("[’′`´]", ":", x)
-  x <- gsub("[^0-9:]", ":", x)
-  x <- gsub(":+", ":", x)
-
-  parts <- strsplit(x, ":")[[1]]
-  if (length(parts) < 2) stop("Kan inte tolka tid: ", x)
-
-  min <- suppressWarnings(as.numeric(parts[1]))
-  sec <- suppressWarnings(as.numeric(parts[2]))
-
-  if (is.na(min) || is.na(sec) || sec < 0 || sec >= 60) stop("Ogiltig tid: ", x)
-  min * 60 + sec
-}
-
-fmt_time <- function(sec) {
-  sec <- round(sec)
-  m <- floor(sec / 60)
-  s <- sec %% 60
-  sprintf("%d:%02d", m, s)
-}
+initialize_csv_if_missing(csv_path)
 
 # ============================
-# 3) Skapa ny CSV om den saknas (format: cups,t)
+# 3) Läs CSV
 # ============================
-if (!file.exists(csv_path)) {
-  df_init <- tibble(
-    cups = c(3,4,3,5,5,3,5,3,7),
-    t    = c("3:06","3:30","2:53","3:42","3:53","2:53","3:53","2:53","5:17")
-  )
-  write_csv(df_init, csv_path)
-  message("Skapade ", csv_path, " (lägg till fler rader: cups,t).")
-  message("Exempelrad: 4,3:28")
-}
+df <- load_coffee_data(csv_path)
 
 # ============================
-# 4) Läs CSV robust (accepterar också gamla namn: time/tid)
+# 4) Klassisk modell: jämför linjär vs kvadratisk (rapportera bara kvadratisk)
 # ============================
-df0 <- read_csv(csv_path, show_col_types = FALSE)
-names(df0) <- tolower(names(df0))
-
-if (!("cups" %in% names(df0))) stop("CSV måste ha kolumnen 'cups'.")
-
-# normalisera tidskolumn till "t"
-if ("t" %in% names(df0)) {
-  # ok
-} else if ("tid" %in% names(df0)) {
-  df0 <- rename(df0, t = tid)
-} else if ("time" %in% names(df0)) {
-  df0 <- rename(df0, t = time)
-} else {
-  stop("CSV måste ha tidskolumnen 't' (eller 'time'/'tid').")
-}
-
-df <- df0 %>%
-  mutate(
-    cups = as.integer(cups),
-    t    = as.character(t),
-    sec  = vapply(t, parse_time, numeric(1))
-  ) %>%
-  filter(!is.na(cups), !is.na(sec))
-
-if (nrow(df) < 5) stop("För lite data i ", csv_path, " för modellering.")
-
-# Prognospunkter
-new <- tibble(cups = 1:10)
-
-# ============================
-# 5) Klassisk modell: jämför linjär vs kvadratisk (rapportera bara kvadratisk)
-# ============================
-m_lin  <- lm(sec ~ cups, data = df)
-m_quad <- lm(sec ~ poly(cups, 2, raw = TRUE), data = df)
-
-AICs <- c(linear = AIC(m_lin), quadratic = AIC(m_quad))
-dAIC <- AICs - min(AICs)
-wAIC <- exp(-0.5 * dAIC) / sum(exp(-0.5 * dAIC))
-delta_best <- sort(dAIC)[2]  # näst-bäst mot bäst
-
-model_classic <- m_quad
-
-# Endast prediktionsintervall (praktiskt)
-pi95 <- predict(model_classic, newdata = new, interval = "prediction", level = 0.95)
-
-pred_classic <- new %>%
-  mutate(
-    estimate = pi95[, "fit"],
-    PI95_low = pi95[, "lwr"],
-    PI95_high= pi95[, "upr"]
-  )
-
-classic_print <- pred_classic %>%
-  transmute(
-    cups,
-    estimate = fmt_time(estimate),
-    PI95_low = fmt_time(PI95_low),
-    PI95_high= fmt_time(PI95_high)
-  )
+results <- fit_classical_models(df, report_model_comparison_if_close, close_threshold_aic)
 
 cat("\n=== Klassisk modell (rapport) ===\n")
 cat("Modell: kvadratisk (sek ~ koppar + koppar^2)\n")
 
-if (report_model_comparison_if_close && is.finite(delta_best) && delta_best < close_threshold_aic) {
+if (results$report_comparison) {
   cat("Obs: modellerna är nära (ΔAIC < ", close_threshold_aic, "). Jämförelse:\n", sep = "")
-  cat("AIC:\n"); print(AICs)
-  cat("Modellstöd (AIC-vikt %):\n"); print(round(100 * wAIC, 1))
+  cat("AIC:\n"); print(results$AICs)
+  cat("Modellstöd (AIC-vikt %):\n"); print(round(100 * results$wAIC, 1))
 }
 
 cat("\nPrognos 1–10 koppar (95% prediktionsintervall):\n")
-print(as.data.frame(classic_print), row.names = FALSE)
+print(as.data.frame(results$predictions_formatted), row.names = FALSE)
 
-# Spara prognos-CSV (endast det du använder)
-write_csv(
-  classic_print,
-  "pred_klassisk_1_10.csv"
-)
+# Spara prognos-CSV
+write_csv(results$predictions_formatted, "pred_klassisk_1_10.csv")
 
 # ============================
-# 6) Klassisk figur: punkter + PI-band + kurva
+# 5) Klassisk figur: punkter + PI-band + kurva
 # ============================
-grid <- tibble(cups = seq(min(1, min(df$cups)), max(10, max(df$cups)), by = 0.05))
-grid_pi <- predict(model_classic, newdata = grid, interval = "prediction", level = 0.95)
-
-grid_plot <- grid %>%
-  mutate(
-    fit  = grid_pi[, "fit"],
-    pi_l = grid_pi[, "lwr"],
-    pi_u = grid_pi[, "upr"]
-  )
-
-p1 <- ggplot(df, aes(x = cups, y = sec)) +
-  geom_point(size = 2) +
-  geom_ribbon(
-    data = grid_plot,
-    aes(x = cups, ymin = pi_l, ymax = pi_u),
-    alpha = 0.20,
-    inherit.aes = FALSE
-  ) +
-  geom_line(
-    data = grid_plot,
-    aes(x = cups, y = fit),
-    linewidth = 1,
-    inherit.aes = FALSE
-  ) +
-  labs(
-    title = "Kaffekok: tid vs koppar",
-    subtitle = "Kurva + 95% prediktionsintervall (praktiskt spann för nästa kok).",
-    x = "Antal koppar", y = "Tid (sek)"
-  )
-
+grid_plot <- get_prediction_grid(df, results$model)
+p1 <- create_classical_plot(df, grid_plot)
 ggsave(file.path(fig_dir, "klassisk_fit.png"), p1, width = 8, height = 5, dpi = 150)
 
 # ============================
-# 7) Bayes (bakgrund): LOO + PI (utan CI i vardagsoutput)
+# 6) Bayes (bakgrund): LOO + PI (utan CI i vardagsoutput)
 # ============================
+# Bayes (valfritt)
+bayes_need <- c("rstanarm", "loo")
+bayes_available <- all(vapply(bayes_need, requireNamespace, logical(1), quietly = TRUE))
+
 if (bayes_available) {
   suppressPackageStartupMessages({
     library(rstanarm)
@@ -225,6 +93,7 @@ if (bayes_available) {
   w_loo <- loo_model_weights(list(lin = loo_lin, quad = loo_quad), method = "pseudobma")
 
   # Prediktivt intervall för nästa mätning
+  new <- tibble(cups = 1:10)
   yrep <- posterior_predict(fit_b_quad, newdata = new)
 
   bayes_PI <- tibble(
@@ -286,7 +155,7 @@ if (bayes_available) {
 }
 
 # ============================
-# 8) Summering
+# 7) Summering
 # ============================
 cat("\nSparat:\n")
 cat("- ", csv_path, "\n", sep = "")
@@ -294,4 +163,3 @@ cat("- ", file.path(fig_dir, "klassisk_fit.png"), "\n", sep = "")
 if (bayes_available) cat("- ", file.path(fig_dir, "bayes_fit.png"), "\n", sep = "")
 cat("- pred_klassisk_1_10.csv\n")
 if (bayes_available) cat("- pred_bayes_1_10.csv\n")
-
