@@ -1,1 +1,7 @@
 .DS_Store
+fig/
+pred_*.csv
+tid_per_kopp_old.R
+.Rhistory
+.RData
+.Rproj.user
