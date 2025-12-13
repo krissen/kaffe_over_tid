@@ -210,26 +210,24 @@ server <- function(input, output, session) {
 # ============================
 # Run app with auto-open browser
 # ============================
-# Function to open browser on macOS
+# Function to open browser
 open_browser <- function(url) {
-  # Validate URL is properly formatted (localhost/IP with port)
-  if (!grepl("^https?://[a-zA-Z0-9\\.:-]+(/.*)?$", url)) {
-    warning("Invalid URL format: ", url)
+  # Strict validation: only allow localhost URLs with port numbers
+  if (!grepl("^https?://(127\\.0\\.0\\.1|localhost)(:[0-9]+)?(/.*)?$", url)) {
+    warning("Invalid URL format (must be localhost): ", url)
     return(FALSE)
   }
   
   tryCatch({
     if (Sys.info()["sysname"] == "Darwin") {
-      # macOS: use 'open' command
-      system(paste("open", shQuote(url)), wait = FALSE)
+      # macOS: use 'open' command with system2 for better security
+      system2("open", args = url, wait = FALSE, stdout = FALSE, stderr = FALSE)
     } else if (Sys.info()["sysname"] == "Linux") {
-      # Linux: use 'xdg-open' command
-      system(paste("xdg-open", shQuote(url)), wait = FALSE)
+      # Linux: use 'xdg-open' command with system2 for better security
+      system2("xdg-open", args = url, wait = FALSE, stdout = FALSE, stderr = FALSE)
     } else if (Sys.info()["sysname"] == "Windows") {
-      # Windows: use shell.exec (validate first)
-      if (grepl("^https?://127\\.0\\.0\\.1:[0-9]+$", url)) {
-        shell.exec(url)
-      }
+      # Windows: use shell.exec (already validated above)
+      shell.exec(url)
     }
   }, error = function(e) {
     warning("Could not open browser: ", e$message)
