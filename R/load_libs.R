@@ -30,6 +30,10 @@ if (dir.exists("R")) {
   stop("Cannot find R/ directory with shared libraries. Make sure to run from the project root directory.")
 }
 
+# Source utilities in dependency order
+# time_utils.R must be first (defines parse_time, fmt_time)
+# data_utils.R depends on parse_time
+# model_utils.R depends on fmt_time
 source(file.path(r_dir, "time_utils.R"))
 source(file.path(r_dir, "data_utils.R"))
 source(file.path(r_dir, "model_utils.R"))

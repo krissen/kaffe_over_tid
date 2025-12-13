@@ -201,7 +201,7 @@ server <- function(input, output, session) {
     content = function(file) {
       results <- model_results()
       if (!is.null(results)) {
-        write_csv(results$predictions_formatted, file)
+        readr::write_csv(results$predictions_formatted, file)
       }
     }
   )
