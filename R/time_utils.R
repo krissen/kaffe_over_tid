@@ -8,6 +8,8 @@ parse_time <- function(x) {
   x <- trimws(as.character(x))
 
   # normalisera separatorer: 3'06, 3'06, 3:06, 3 06, 3m06s, etc.
+  # Ersätt olika apostrof- och accenttecken med kolon
+  # ' (apostrophe), ′ (prime), ` (backtick), ´ (acute accent)
   x <- gsub("['′`´]", ":", x)
   x <- gsub("[^0-9:]", ":", x)
   x <- gsub(":+", ":", x)

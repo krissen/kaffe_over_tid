@@ -212,8 +212,10 @@ server <- function(input, output, session) {
 # ============================
 # Function to open browser
 open_browser <- function(url) {
-  # Strict validation: only allow localhost URLs with port numbers
-  if (!grepl("^https?://(127\\.0\\.0\\.1|localhost)(:[0-9]+)?(/.*)?$", url)) {
+  # URL validation pattern: only allow localhost addresses
+  localhost_url_pattern <- "^https?://(127\\.0\\.0\\.1|localhost)(:[0-9]+)?(/.*)?$"
+  
+  if (!grepl(localhost_url_pattern, url)) {
     warning("Invalid URL format (must be localhost): ", url)
     return(FALSE)
   }
