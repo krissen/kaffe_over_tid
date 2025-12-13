@@ -20,23 +20,18 @@ suppressPackageStartupMessages({
 })
 
 # Source all utility files
-script_dir <- if (exists("app_dir")) {
-  app_dir
-} else {
-  dirname(sys.frame(1)$ofile)
-}
-
-if (is.null(script_dir) || script_dir == "") {
-  script_dir <- getwd()
-}
-
-# Find R directory (could be in current dir or parent)
-if (dir.exists(file.path(script_dir, "R"))) {
-  r_dir <- file.path(script_dir, "R")
-} else if (dir.exists("R")) {
+# Find R directory relative to current working directory
+if (dir.exists("R")) {
   r_dir <- "R"
+} else if (dir.exists(file.path(getwd(), "R"))) {
+  r_dir <- file.path(getwd(), "R")
 } else {
-  stop("Cannot find R/ directory with shared libraries")
+  # Try to use app_dir if it was set before sourcing
+  if (exists("app_dir") && dir.exists(file.path(app_dir, "R"))) {
+    r_dir <- file.path(app_dir, "R")
+  } else {
+    stop("Cannot find R/ directory with shared libraries. Make sure to run from the project root directory.")
+  }
 }
 
 source(file.path(r_dir, "time_utils.R"))

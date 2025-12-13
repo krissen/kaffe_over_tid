@@ -88,7 +88,7 @@ server <- function(input, output, session) {
     if (is.null(df) || nrow(df) < 5) return(NULL)
     
     tryCatch({
-      fit_classical_models(df, report_comparison = TRUE, close_threshold_aic = 2.0)
+      fit_classical_models(df, report_model_comparison_if_close = TRUE, close_threshold_aic = 2.0)
     }, error = function(e) {
       showNotification(paste("Fel vid modellering:", e$message), type = "error")
       NULL
@@ -206,10 +206,16 @@ if (!interactive()) {
   
   # Function to open browser on macOS
   open_browser <- function(url) {
+    # Validate URL format to prevent command injection
+    if (!grepl("^https?://[a-zA-Z0-9\\.:]+(/.*)?$", url)) {
+      warning("Invalid URL format: ", url)
+      return(FALSE)
+    }
+    
     if (Sys.info()["sysname"] == "Darwin") {
-      system(paste("open", url), wait = FALSE)
+      system(paste("open", shQuote(url)), wait = FALSE)
     } else if (Sys.info()["sysname"] == "Linux") {
-      system(paste("xdg-open", url), wait = FALSE)
+      system(paste("xdg-open", shQuote(url)), wait = FALSE)
     } else if (Sys.info()["sysname"] == "Windows") {
       shell.exec(url)
     }

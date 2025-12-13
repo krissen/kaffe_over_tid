@@ -93,11 +93,11 @@ if (bayes_available) {
   w_loo <- loo_model_weights(list(lin = loo_lin, quad = loo_quad), method = "pseudobma")
 
   # Prediktivt intervall för nästa mätning
-  new <- tibble(cups = 1:10)
-  yrep <- posterior_predict(fit_b_quad, newdata = new)
+  new_bayes <- tibble(cups = 1:10)
+  yrep <- posterior_predict(fit_b_quad, newdata = new_bayes)
 
   bayes_PI <- tibble(
-    cups = new$cups,
+    cups = new_bayes$cups,
     PI_med  = apply(yrep, 2, median),
     PI95_low = apply(yrep, 2, quantile, probs = 0.025),
     PI95_high= apply(yrep, 2, quantile, probs = 0.975)

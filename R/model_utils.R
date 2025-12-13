@@ -3,10 +3,10 @@
 
 #' Fit classical models (linear and quadratic) and return predictions
 #' @param df Data frame with cups and sec columns
-#' @param report_comparison Whether to report model comparison
+#' @param report_model_comparison_if_close Whether to report model comparison
 #' @param close_threshold_aic AIC threshold for "close" models
 #' @return List with model, predictions, and comparison info
-fit_classical_models <- function(df, report_comparison = TRUE, close_threshold_aic = 2.0) {
+fit_classical_models <- function(df, report_model_comparison_if_close = TRUE, close_threshold_aic = 2.0) {
   # Fit models
   m_lin  <- lm(sec ~ cups, data = df)
   m_quad <- lm(sec ~ poly(cups, 2, raw = TRUE), data = df)
@@ -47,7 +47,7 @@ fit_classical_models <- function(df, report_comparison = TRUE, close_threshold_a
     dAIC = dAIC,
     wAIC = wAIC,
     delta_best = delta_best,
-    report_comparison = report_comparison && is.finite(delta_best) && delta_best < close_threshold_aic
+    report_comparison = report_model_comparison_if_close && is.finite(delta_best) && delta_best < close_threshold_aic
   )
 }
 
