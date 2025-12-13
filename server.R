@@ -3,7 +3,8 @@
 
 server <- function(input, output, session) {
   
-  csv_path <- "kaffedata.csv"
+  # csv_path is defined in app.R before this file is sourced
+  # This ensures consistency and follows DRY principle
   
   # Reactive value to trigger data reload
   data_version <- reactiveVal(0)

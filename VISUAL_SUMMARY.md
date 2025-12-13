@@ -6,73 +6,77 @@ This document summarizes the visual and aesthetic improvements made to the Kaffe
 ## Key Visual Elements
 
 ### Color Scheme
-The application now uses a carefully selected color palette inspired by the Moccamaster Classic brand:
+The application now uses a coffee-inspired color palette with Moccamaster Classic (silver + black) references:
 
-- **Primary Red**: `#c8102e` - The iconic Moccamaster red used for headers, buttons, and accents
-- **Secondary Navy**: `#2c3e50` - Dark blue-gray for text and structural elements  
-- **Warm Background**: `#f5f5f0` - Soft off-white background for a warm, inviting feel
-- **Text Colors**: Dark gray (`#2c2c2c`) for readability with light gray (`#666`) for secondary text
+- **Dark Roasted Coffee Brown**: `#3e2723` - Used for primary elements, headers, and borders
+- **Medium Coffee Brown**: `#6d4c41` - For secondary elements and button gradients
+- **Light Coffee/Latte**: `#8d6e63` - Accent colors and highlights
+- **Silver**: `#c0c0c0` - Moccamaster Classic appliance reference
+- **Coffee Black**: `#1a1a1a` - Terminal backgrounds and deep accents
+- **Cream/Latte Background**: `#f5f1ed` - Page background for warmth
+- **Text Colors**: Dark coffee brown (`#2c2013`) for primary text, light coffee (`#6d5d4f`) for secondary text
 
 ### Header Design
 The application header features:
-- **Moccamaster logo** prominently displayed (225x225px)
-- **Title**: "Kaffekok: Tid per Kopp" in bold, clear typography
+- **Moccamaster logo** compact display (max-width: 60px)
+- **Title**: "Kaffekok: Tid per Kopp" in bold, monospace typography
 - **Subtitle**: "Analys av bryggtid för Moccamaster Classic" in italics
-- Clean white background with subtle red accent border
+- Silver gradient background (linear-gradient from #c0c0c0 to #e8e8e8) with dark coffee brown border (#3e2723)
 
 ### Layout Structure
 
 #### Sidebar Panel
-- White background with subtle border and shadow
-- Clean, organized input fields with custom styling
-- Primary action button in Moccamaster red
-- Info boxes with light blue background and blue border
+- Cream background (#faf8f5) with subtle border and shadow
+- Predictions table with coffee brown gradient headers
+- Download button styled in coffee brown for clarity
 - Data table with alternating row highlighting
+- Compact text sizing (0.9em) for efficient space use
 
 #### Main Panel
 - Tabbed interface with three sections:
-  1. **Plot**: Visualization with professional styling
-  2. **Prediktioner**: Predictions table with download button
-  3. **Modellinfo**: Model information in monospace font
+  1. **Plot**: Visualization with professional styling (default tab)
+  2. **Data**: Dataset view and data entry form combined
+  3. **Modellinfo**: Model information in terminal-style display
 
 ### Interactive Elements
 
 #### Buttons
-- **Primary buttons**: Moccamaster red with white text
-- **Hover effect**: Slightly darker shade with subtle lift animation
-- **Download buttons**: Green color for action clarity
-- Smooth transitions on all interactions
+- **Primary buttons**: Coffee brown gradient (from #6d4c41 to #3e2723) with white text
+- **Hover effect**: Darker coffee gradient with subtle shadow
+- **Download buttons**: Coffee brown gradient for consistency
+- Smooth transitions (0.2s) on all interactions
 
 #### Input Fields
-- Clean borders with rounded corners
-- Focus state: Red border with subtle glow
+- Clean borders with minimal rounded corners (2px)
+- Focus state: Coffee brown border with subtle coffee brown glow
+- Monospace font for retro terminal aesthetic
 - Proper spacing and padding for touch-friendly interaction
 - Clear labels and placeholders
 
 #### Tables
-- Header rows in dark navy with white text
+- Header rows in coffee brown gradient (from #8d6e63 to #6d4c41) with white text
 - Alternating row colors for readability
-- Hover effect: Light red tint
+- Hover effect: Light coffee brown tint
 - Clean borders and proper spacing
 
 #### Tabs
 - Inactive tabs: Gray text with subtle background
-- Active tab: Red text, white background
+- Active tab: Coffee brown text, white background
 - Hover effect on inactive tabs
-- Smooth transitions between states
+- Smooth transitions (0.2s) between states
 
 ### Typography
-- **Font family**: Helvetica Neue, Helvetica, Arial, sans-serif
-- **Line height**: 1.6 for optimal readability
-- **Headers**: Bold weight in navy color
-- **Body text**: Regular weight in dark gray
-- **Code/Model output**: Monaco/Courier New monospace font
+- **Font family**: Courier New, Monaco, monospace (retro terminal aesthetic)
+- **Line height**: 1.5 for optimal readability
+- **Headers**: Bold weight (700) in coffee brown color
+- **Body text**: Regular weight in dark coffee brown
+- **Code/Model output**: Terminal-style display with dark background and light text
 
 ### Visual Effects
 - **Subtle shadows**: Box-shadows on panels for depth
-- **Rounded corners**: 4-6px radius for modern feel
-- **Smooth animations**: 0.3s transitions on hover states
-- **Page load**: Fade-in animation for professional appearance
+- **Angular corners**: 2-3px radius for retro aesthetic
+- **Smooth animations**: 0.2s transitions on hover states
+- **Page load**: Fade-in animation (0.5s) for professional appearance
 
 ### Favicon
 A custom 32x32 pixel favicon created from the Moccamaster logo appears in:

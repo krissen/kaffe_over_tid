@@ -12,12 +12,12 @@ ui <- fluidPage(
   # Compact title section with logo
   div(class = "title-panel",
     fluidRow(
-      column(1,
+      column(2,
         div(class = "logo-container",
           img(src = "moccamaster_logo.png", alt = "Moccamaster")
         )
       ),
-      column(11,
+      column(10,
         div(class = "text-content",
           h2("Kaffekok: Tid per Kopp"),
           div(class = "subtitle", "Analys av bryggtid för Moccamaster Classic")
