@@ -86,7 +86,7 @@ if (!interactive()) {
   
   # Run the app
   runApp(
-    list(ui = ui, server = server),
+    appDir = getwd(),
     host = host,
     port = port,
     launch.browser = TRUE
