@@ -18,28 +18,26 @@ ui <- fluidPage(
         )
       ),
       column(11,
-        h2("Kaffekok: Tid per Kopp"),
-        div(class = "subtitle", "Analys av bryggtid för Moccamaster Classic")
+        div(class = "text-content",
+          h2("Kaffekok: Tid per Kopp"),
+          div(class = "subtitle", "Analys av bryggtid för Moccamaster Classic")
+        )
       )
     )
   ),
   
   sidebarLayout(
     sidebarPanel(
-      h4("Aktuell data"),
-      tableOutput("data_table")
+      h4("Prediktioner"),
+      p(class = "description-text",
+        "Prognoser 1-10 koppar"),
+      tableOutput("predictions_table"),
+      hr(),
+      downloadButton("download_predictions", "Ladda ner CSV", class = "btn-success")
     ),
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Prediktioner",
-                 h3("Prognoser 1-10 koppar"),
-                 p(class = "description-text",
-                   "Baserat på mätningar från ", strong("Moccamaster Classic")),
-                 tableOutput("predictions_table"),
-                 hr(),
-                 downloadButton("download_predictions", "Ladda ner CSV", class = "btn-success")
-        ),
         tabPanel("Plot", 
                  div(class = "plot-container",
                    plotOutput("classical_plot", height = "500px")
@@ -52,16 +50,19 @@ ui <- fluidPage(
                    p("Det skuggade området visar 95% prediktionsintervall.")
                  )
         ),
-        tabPanel("Lägg till data",
-                 h3("Lägg till ny mätning"),
+        tabPanel("Data",
+                 h3("Dataset och ny mätning"),
+                 h4("Lägg till ny mätning"),
                  numericInput("cups_input", "Antal koppar:", value = 3, min = 1, max = 20),
                  textInput("time_input", "Tid (m:ss):", value = "3:00", placeholder = "Ex: 3:30"),
                  actionButton("add_button", "Lägg till", class = "btn-primary"),
-                 hr(),
                  div(class = "info-text",
                    p(style = "margin: 0;", strong("Tidsformat:"), "minuter:sekunder (ex: 3:30)"),
                    p(style = "margin: 5px 0 0 0;", "Accepterar också 3'30, 3m30s, etc.")
-                 )
+                 ),
+                 hr(),
+                 h4("Aktuellt dataset"),
+                 tableOutput("data_table")
         ),
         tabPanel("Modellinfo",
                  h3("Modellinformation"),
