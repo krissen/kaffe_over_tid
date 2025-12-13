@@ -7,7 +7,7 @@
 # ============================
 csv_path <- "kaffedata.csv"
 fig_dir  <- "fig"
-dir.create(fig_dir, showWarnings = FALSE)
+invisible(dir.create(fig_dir, showWarnings = FALSE))
 
 # Skriv jämförelser bara om modellerna är nära
 report_model_comparison_if_close <- TRUE
@@ -218,8 +218,8 @@ if (bayes_available) {
     chains = 4, iter = 2000, refresh = 0
   )
 
-  loo_lin  <- loo(fit_b_lin)
-  loo_quad <- loo(fit_b_quad)
+  loo_lin  <- loo(fit_b_lin,  k_threshold = 0.7)
+  loo_quad <- loo(fit_b_quad, k_threshold = 0.7)
 
   cmp <- loo_compare(loo_lin, loo_quad)
   w_loo <- loo_model_weights(list(lin = loo_lin, quad = loo_quad), method = "pseudobma")
