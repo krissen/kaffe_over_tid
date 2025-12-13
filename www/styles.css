@@ -1,0 +1,288 @@
+/* Retro-inspired aesthetic for Moccamaster Coffee Analysis */
+
+/* Color palette inspired by Moccamaster brand */
+:root {
+  --primary-color: #c8102e;      /* Moccamaster red */
+  --secondary-color: #2c3e50;     /* Dark blue-gray */
+  --background: #f5f5f0;          /* Warm off-white */
+  --text-dark: #2c2c2c;
+  --text-light: #666;
+  --border-color: #d4d4d4;
+  --hover-color: #a00d25;
+  --success-color: #27ae60;
+}
+
+body {
+  background-color: var(--background);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+/* Header styling */
+.navbar {
+  background-color: var(--primary-color) !important;
+  border-bottom: 3px solid var(--secondary-color);
+  padding: 15px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3, h4 {
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+.title-panel {
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 5px solid var(--primary-color);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.title-panel h2 {
+  margin-top: 0;
+  color: var(--secondary-color);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.subtitle {
+  color: var(--text-light);
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+/* Sidebar styling */
+.well {
+  background-color: white;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 20px;
+}
+
+.sidebar {
+  background-color: white !important;
+}
+
+/* Input styling */
+input[type="number"],
+input[type="text"],
+select,
+textarea {
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--hover-color);
+  border-color: var(--hover-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+table thead {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-color);
+}
+
+table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+table tbody tr:hover {
+  background-color: rgba(200, 16, 46, 0.05);
+}
+
+table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Tab styling */
+.nav-tabs {
+  border-bottom: 2px solid var(--border-color);
+}
+
+.nav-tabs > li > a {
+  color: var(--text-dark);
+  border-radius: 4px 4px 0 0;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs > li > a:hover {
+  background-color: rgba(200, 16, 46, 0.05);
+  border-color: var(--border-color);
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  background-color: white;
+  border-color: var(--border-color);
+  border-bottom-color: white;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.tab-content {
+  background-color: white;
+  padding: 20px;
+  border: 2px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+}
+
+/* Plot container */
+.plot-container {
+  background-color: white;
+  padding: 15px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Info text styling */
+.info-text {
+  background-color: #e8f4f8;
+  border-left: 4px solid #3498db;
+  padding: 12px 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+/* HR styling */
+hr {
+  border: none;
+  border-top: 2px solid var(--border-color);
+  margin: 20px 0;
+}
+
+/* Notification styling */
+.shiny-notification {
+  border-radius: 6px;
+  border-left: 5px solid var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-weight: 500;
+}
+
+.shiny-notification-error {
+  border-left-color: #e74c3c;
+}
+
+.shiny-notification-message {
+  border-left-color: var(--success-color);
+}
+
+/* Logo styling */
+.logo-container {
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.logo-container img {
+  max-width: 120px;
+  height: auto;
+  opacity: 0.9;
+}
+
+/* Model info styling */
+pre {
+  background-color: #f8f8f8;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  padding: 15px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .title-panel {
+    padding: 15px;
+  }
+  
+  .well {
+    padding: 15px;
+  }
+  
+  table th,
+  table td {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+}
+
+/* Add subtle animation to page load */
+.container-fluid {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
