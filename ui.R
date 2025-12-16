@@ -6,6 +6,7 @@ ui <- fluidPage(
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
     tags$link(rel = "icon", type = "image/x-icon", href = "favicon.ico"),
+    tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"),
     tags$title("Kaffekok: Tid per Kopp - Moccamaster Classic")
   ),
   
@@ -30,14 +31,34 @@ ui <- fluidPage(
     sidebarPanel(
       h4("Prediktioner (1-10 koppar)"),
 
-      h5("Klassisk modell"),
-      tableOutput("predictions_table_klassisk"),
-
+      # Bayes-tabell (visas när klar)
       conditionalPanel(
         condition = "output.bayes_available",
-        hr(),
         h5("Bayes-modell"),
-        tableOutput("predictions_table_bayes")
+        shinycssloaders::withSpinner(
+          tableOutput("predictions_table_bayes"),
+          type = 4, color = "#B2182B", size = 0.5
+        ),
+        hr()
+      ),
+
+      # Bayes-status (visas under beräkning)
+      conditionalPanel(
+        condition = "output.bayes_loading",
+        div(class = "loading-message",
+          style = "padding: 10px; background: #fff3cd; border-radius: 4px; margin: 10px 0;",
+          p(style = "margin: 0; color: #856404;",
+            tags$i(class = "fa-solid fa-spinner fa-spin"),
+            " Beräknar Bayes-modell... (kan ta 10-30 sek)")
+        ),
+        hr()
+      ),
+
+      # Klassisk tabell (visas alltid)
+      h5("Klassisk modell"),
+      shinycssloaders::withSpinner(
+        tableOutput("predictions_table_klassisk"),
+        type = 4, color = "#2166AC", size = 0.5
       ),
 
       hr(),
@@ -48,9 +69,32 @@ ui <- fluidPage(
 
     mainPanel(
       tabsetPanel(
+        id = "main_tabs",
+        selected = "Klassisk",  # Visa Klassisk initialt (server byter till Kombinerad när Bayes klar)
+        tabPanel("Kombinerad",
+                 div(class = "plot-container",
+                   shinycssloaders::withSpinner(
+                     plotOutput("combined_plot", height = "450px"),
+                     type = 4, color = "#666666"
+                   )
+                 ),
+                 div(class = "interpretation-section",
+                   h4("Tolkning:"),
+                   p("Båda modellerna visas i samma figur:"),
+                   tags$ul(
+                     tags$li(span(style = "color: #2166AC; font-weight: bold;", "Blå"), " = Klassisk regression"),
+                     tags$li(span(style = "color: #B2182B; font-weight: bold;", "Röd"), " = Bayesiansk regression")
+                   ),
+                   p("Skuggade områden visar 95% prediktionsintervall."),
+                   p(em("Om Bayes ej är tillgängligt visas endast klassisk modell."))
+                 )
+        ),
         tabPanel("Klassisk",
                  div(class = "plot-container",
-                   plotOutput("classical_plot", height = "450px")
+                   shinycssloaders::withSpinner(
+                     plotOutput("classical_plot", height = "450px"),
+                     type = 4, color = "#2166AC"
+                   )
                  ),
                  div(class = "interpretation-section",
                    h4("Tolkning:"),
@@ -65,7 +109,10 @@ ui <- fluidPage(
                  conditionalPanel(
                    condition = "output.bayes_available",
                    div(class = "plot-container",
-                     plotOutput("bayes_plot", height = "450px")
+                     shinycssloaders::withSpinner(
+                       plotOutput("bayes_plot", height = "450px"),
+                       type = 4, color = "#B2182B"
+                     )
                    ),
                    div(class = "interpretation-section",
                      h4("Tolkning:"),
@@ -77,7 +124,19 @@ ui <- fluidPage(
                    )
                  ),
                  conditionalPanel(
-                   condition = "!output.bayes_available",
+                   condition = "output.bayes_loading",
+                   div(class = "info-section",
+                     style = "text-align: center; padding: 40px;",
+                     div(style = "font-size: 48px; color: #B2182B;",
+                       tags$i(class = "fa-solid fa-gear fa-spin")
+                     ),
+                     h4("Beräknar Bayes-modell..."),
+                     p("Detta kan ta 10-30 sekunder beroende på datamängd."),
+                     p(em("Bayesiansk regression ger robustare prediktioner."))
+                   )
+                 ),
+                 conditionalPanel(
+                   condition = "!output.bayes_available && !output.bayes_loading",
                    div(class = "info-section",
                      h4("Bayes ej tillgängligt"),
                      p("Installera ", code("rstanarm"), " och ", code("loo"), " för Bayes-analys:"),
@@ -97,11 +156,17 @@ ui <- fluidPage(
                  ),
                  hr(),
                  h4("Aktuellt dataset"),
-                 tableOutput("data_table")
+                 shinycssloaders::withSpinner(
+                   tableOutput("data_table"),
+                   type = 4, color = "#666666", size = 0.5
+                 )
         ),
         tabPanel("Modellinfo",
                  h3("Modellinformation"),
-                 verbatimTextOutput("model_info")
+                 shinycssloaders::withSpinner(
+                   verbatimTextOutput("model_info"),
+                   type = 4, color = "#666666"
+                 )
         )
       )
     )

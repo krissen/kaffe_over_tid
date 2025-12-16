@@ -6,8 +6,14 @@ server <- function(input, output, session) {
   # csv_path is defined in app.R before this file is sourced
   # This ensures consistency and follows DRY principle
 
+  # Cache bayes_available() result (expensive requireNamespace calls)
+  bayes_is_available <- bayes_available()
+
   # Reactive value to trigger data reload
   data_version <- reactiveVal(0)
+
+  # Reactive value to store Bayes results
+  bayes_result_val <- reactiveVal(NULL)
 
   # Load data reactively
   coffee_data <- reactive({
@@ -20,7 +26,7 @@ server <- function(input, output, session) {
     })
   })
 
-  # Fit classical model reactively
+  # Fit classical model reactively (fast, runs synchronously)
   model_results <- reactive({
     df <- coffee_data()
     if (is.null(df) || nrow(df) < 5) return(NULL)
@@ -33,60 +39,92 @@ server <- function(input, output, session) {
     })
   })
 
-  # Fit Bayes model reactively (if available)
-  bayes_results <- reactive({
-    df <- coffee_data()
-    if (is.null(df) || nrow(df) < 5) return(NULL)
-    if (!bayes_available()) return(NULL)
-
-    tryCatch({
-      withProgress(message = "Beräknar Bayes-modell...", {
-        bayes_fit <- fit_bayes_models(df)
-        bayes_pred <- get_bayes_predictions(bayes_fit)
-        list(
-          fit = bayes_fit,
-          predictions = bayes_pred
-        )
+  # ExtendedTask for async Bayes computation
+  bayes_task <- ExtendedTask$new(function(df) {
+    # Only pass the data frame - source functions in the worker
+    future::future({
+      # Load everything fresh in the worker process
+      suppressPackageStartupMessages({
+        library(rstanarm)
+        library(loo)
+        library(dplyr)
       })
-    }, error = function(e) {
-      showNotification(paste("Bayes-modellering misslyckades:", e$message), type = "warning")
-      NULL
-    })
+
+      # Source utility functions in the worker
+      source("R/time_utils.R")
+      source("R/model_utils.R")
+
+      bayes_fit <- fit_bayes_models(df)
+      bayes_pred <- get_bayes_predictions(bayes_fit)
+      list(
+        fit = bayes_fit,
+        predictions = bayes_pred
+      )
+    }, seed = TRUE, globals = list(df = df))
   })
-  
+
+  # Start Bayes computation when data is ready
+  observe({
+    df <- coffee_data()
+    if (!is.null(df) && nrow(df) >= 5 && bayes_is_available) {
+      # Only start if not already running
+      if (bayes_task$status() %in% c("initial", "error")) {
+        bayes_task$invoke(df)
+      }
+    }
+  })
+
+  # Store result when task completes
+  observe({
+    result <- bayes_task$result()
+    if (!is.null(result)) {
+      bayes_result_val(result)
+      # Switch to Kombinerad tab
+      updateTabsetPanel(session, "main_tabs", selected = "Kombinerad")
+    }
+  })
+
+  # Reactive accessor for Bayes results
+  bayes_results <- reactive({
+    bayes_result_val()
+  })
+
   # Handle add button click
   observeEvent(input$add_button, {
     tryCatch({
       # Validate and add entry
       add_coffee_entry(csv_path, input$cups_input, input$time_input)
-      
+
+      # Reset Bayes results and restart computation
+      bayes_result_val(NULL)
+
       # Increment version to trigger reload
       data_version(data_version() + 1)
-      
+
       # Show success message
       showNotification(
         paste("Tillagt:", input$cups_input, "koppar,", input$time_input),
         type = "message"
       )
-      
+
       # Clear input (optional)
       updateTextInput(session, "time_input", value = "")
-      
+
     }, error = function(e) {
       showNotification(paste("Fel:", e$message), type = "error")
     })
   })
-  
+
   # Render data table
   output$data_table <- renderTable({
     df <- coffee_data()
     if (is.null(df)) return(NULL)
-    
+
     df %>%
       select(cups, t) %>%
       rename(Koppar = cups, Tid = t)
   }, striped = TRUE, hover = TRUE)
-  
+
   # Render classical plot
   output$classical_plot <- renderPlot({
     df <- coffee_data()
@@ -107,6 +145,20 @@ server <- function(input, output, session) {
 
     bayes_plot_df <- get_bayes_plot_data(bayes$predictions)
     create_bayes_plot(df, bayes_plot_df)
+  })
+
+  # Render combined plot (classical + Bayes)
+  output$combined_plot <- renderPlot({
+    df <- coffee_data()
+    results <- model_results()
+
+    if (is.null(df) || is.null(results)) return(NULL)
+
+    grid_plot <- get_prediction_grid(df, results$model)
+    bayes <- bayes_results()
+    bayes_plot_df <- if (!is.null(bayes)) get_bayes_plot_data(bayes$predictions) else NULL
+
+    create_combined_plot(df, grid_plot, bayes_plot_df)
   })
 
   # Render classical predictions table
@@ -137,12 +189,23 @@ server <- function(input, output, session) {
       )
   }, striped = TRUE, hover = TRUE)
 
-  # Check if Bayes is available (for conditional UI)
+  # Check if Bayes is available and completed
   output$bayes_available <- reactive({
-    bayes_available() && !is.null(bayes_results())
+    bayes_is_available && !is.null(bayes_results())
   })
   outputOptions(output, "bayes_available", suspendWhenHidden = FALSE)
-  
+
+  # Check if Bayes is currently loading (or about to start)
+  output$bayes_loading <- reactive({
+    df <- coffee_data()
+    has_data <- !is.null(df) && nrow(df) >= 5
+    not_done <- is.null(bayes_results())
+    status <- bayes_task$status()
+    is_loading <- status %in% c("initial", "running")
+    bayes_is_available && has_data && not_done && is_loading
+  })
+  outputOptions(output, "bayes_loading", suspendWhenHidden = FALSE)
+
   # Render model info
   output$model_info <- renderText({
     results <- model_results()
@@ -195,9 +258,9 @@ server <- function(input, output, session) {
       if (all(diff(bayes_pred_sec) >= 0)) {
         info <- paste0(info, "\n✓ Bayes-modellen ger monotona prediktioner\n")
       }
-    } else if (bayes_available()) {
-      info <- paste0(info, "\n\n(Bayes-modell beräknas...)\n")
-    } else {
+    } else if (bayes_is_available && bayes_task$status() %in% c("initial", "running")) {
+      info <- paste0(info, "\n\n(Bayes-modell beräknas i bakgrunden...)\n")
+    } else if (!bayes_is_available) {
       info <- paste0(info, "\n\n(Bayes ej tillgängligt - installera rstanarm + loo)\n")
     }
 

@@ -74,8 +74,12 @@ get_prediction_grid <- function(df, model) {
 #' Check if Bayesian packages are available
 #' @return TRUE if rstanarm and loo are available
 bayes_available <- function() {
+  # Use system.file instead of requireNamespace - much faster
+  # as it doesn't load the package namespace
   bayes_need <- c("rstanarm", "loo")
-  all(vapply(bayes_need, requireNamespace, logical(1), quietly = TRUE))
+  all(vapply(bayes_need, function(pkg) {
+    nzchar(system.file(package = pkg))
+  }, logical(1)))
 }
 
 #' Fit Bayesian models (linear and quadratic)

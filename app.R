@@ -19,13 +19,21 @@ tryCatch({
 })
 
 # Additional packages for Shiny
-shiny_pkgs <- c("shiny")
+shiny_pkgs <- c("shiny", "shinycssloaders", "future", "promises")
 install_if_missing(shiny_pkgs)
 
 suppressPackageStartupMessages({
   library(shiny)
+  library(shinycssloaders)
+  library(future)
+  library(promises)
 })
-cat("Shiny laddat.\n")
+
+# Enable async execution
+# Must use multisession (not multicore) - forking doesn't work with
+# Shiny's external pointers and Stan models
+future::plan(future::multisession, workers = 2)
+cat("Shiny laddat (async aktiverat).\n")
 
 csv_path <- "kaffedata.csv"
 

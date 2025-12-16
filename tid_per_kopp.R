@@ -98,6 +98,10 @@ if (bayes_available()) {
   p2 <- create_bayes_plot(df, bayes_plot_df)
   ggsave(file.path(output_dir, "bayes_fit.png"), p2, width = 8, height = 5, dpi = 150)
 
+  # Kombinerad figur (klassisk + Bayes)
+  p_combined <- create_combined_plot(df, grid_plot, bayes_plot_df)
+  ggsave(file.path(output_dir, "kombinerad_fit.png"), p_combined, width = 8, height = 5, dpi = 150)
+
   bayes_done <- TRUE
 } else {
   message("\n(Bayes-del hoppad: installera rstanarm + loo för Bayes.)")
@@ -119,4 +123,5 @@ cat("- ", file.path(output_dir, "klassisk_fit.png"), "\n", sep = "")
 cat("- ", file.path(output_dir, "kaffe_prediktioner.csv"), " (kombinerad export)\n", sep = "")
 if (bayes_done) {
   cat("- ", file.path(output_dir, "bayes_fit.png"), "\n", sep = "")
+  cat("- ", file.path(output_dir, "kombinerad_fit.png"), " (båda modeller)\n", sep = "")
 }
