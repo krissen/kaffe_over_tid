@@ -33,3 +33,11 @@ fmt_time <- function(sec) {
   s <- sec %% 60
   sprintf("%d:%02d", m, s)
 }
+
+#' Format seconds to time string, clamping negative values to 0
+#' Useful for statistical predictions where negative times are possible but not physical
+#' @param sec Numeric value in seconds (can be negative)
+#' @return Time string in format "m:ss"
+fmt_time_safe <- function(sec) {
+  fmt_time(pmax(0, sec))
+}

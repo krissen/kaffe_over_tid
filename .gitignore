@@ -1,6 +1,5 @@
 .DS_Store
-fig/
-pred_*.csv
+output/
 tid_per_kopp_old.R
 .Rhistory
 .RData

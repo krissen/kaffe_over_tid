@@ -34,9 +34,9 @@ fit_classical_models <- function(df, report_model_comparison_if_close = TRUE, cl
   classic_print <- pred_classic %>%
     dplyr::transmute(
       cups,
-      estimate = fmt_time(estimate),
-      PI95_low = fmt_time(PI95_low),
-      PI95_high= fmt_time(PI95_high)
+      estimate = fmt_time_safe(estimate),
+      PI95_low = fmt_time_safe(PI95_low),
+      PI95_high= fmt_time_safe(PI95_high)
     )
 
   list(
@@ -64,5 +64,105 @@ get_prediction_grid <- function(df, model) {
       fit  = grid_pi[, "fit"],
       pi_l = grid_pi[, "lwr"],
       pi_u = grid_pi[, "upr"]
+    )
+}
+
+# ============================================================================
+# Bayesian model utilities
+# ============================================================================
+
+#' Check if Bayesian packages are available
+#' @return TRUE if rstanarm and loo are available
+bayes_available <- function() {
+  bayes_need <- c("rstanarm", "loo")
+  all(vapply(bayes_need, requireNamespace, logical(1), quietly = TRUE))
+}
+
+#' Fit Bayesian models (linear and quadratic)
+#' @param df Data frame with cups and sec columns
+#' @return List with fit_lin, fit_quad, loo_lin, loo_quad, loo_compare, loo_weights
+fit_bayes_models <- function(df) {
+  if (!bayes_available()) {
+    stop("Bayes-paket saknas: installera rstanarm och loo")
+  }
+
+  suppressPackageStartupMessages({
+    library(rstanarm)
+    library(loo)
+  })
+
+  options(mc.cores = max(1, parallel::detectCores() - 1))
+
+  # Inline priors to avoid scoping issues with loo refit
+  fit_lin <- rstanarm::stan_glm(
+    sec ~ cups, data = df, family = gaussian(),
+    prior = rstanarm::normal(location = 0, scale = 2.5, autoscale = TRUE),
+    prior_intercept = rstanarm::normal(location = 0, scale = 2.5, autoscale = TRUE),
+    prior_aux = rstanarm::exponential(rate = 1, autoscale = TRUE),
+    chains = 4, iter = 2000, refresh = 0
+  )
+
+  fit_quad <- rstanarm::stan_glm(
+    sec ~ poly(cups, 2, raw = TRUE), data = df, family = gaussian(),
+    prior = rstanarm::normal(location = 0, scale = 2.5, autoscale = TRUE),
+    prior_intercept = rstanarm::normal(location = 0, scale = 2.5, autoscale = TRUE),
+    prior_aux = rstanarm::exponential(rate = 1, autoscale = TRUE),
+    chains = 4, iter = 2000, refresh = 0
+  )
+
+  loo_lin  <- loo::loo(fit_lin,  k_threshold = 0.7)
+  loo_quad <- loo::loo(fit_quad, k_threshold = 0.7)
+
+  cmp <- loo::loo_compare(loo_lin, loo_quad)
+  w_loo <- loo::loo_model_weights(list(lin = loo_lin, quad = loo_quad), method = "pseudobma")
+
+  list(
+    fit_lin = fit_lin,
+    fit_quad = fit_quad,
+    loo_lin = loo_lin,
+    loo_quad = loo_quad,
+    loo_compare = cmp,
+    loo_weights = w_loo
+  )
+}
+
+#' Get Bayesian predictions for 1-10 cups
+#' @param bayes_fit List returned by fit_bayes_models
+#' @param cups_range Integer vector of cups to predict (default 1:10)
+#' @return List with predictions tibble (formatted), predictions_sec tibble (numeric), and yrep matrix
+get_bayes_predictions <- function(bayes_fit, cups_range = 1:10) {
+  new_data <- tibble::tibble(cups = cups_range)
+  yrep <- rstanarm::posterior_predict(bayes_fit$fit_quad, newdata = new_data)
+
+  predictions_sec <- tibble::tibble(
+    cups = cups_range,
+    PI_med    = apply(yrep, 2, median),
+    PI95_low  = apply(yrep, 2, quantile, probs = 0.025),
+    PI95_high = apply(yrep, 2, quantile, probs = 0.975)
+  )
+
+  predictions_formatted <- predictions_sec %>%
+    dplyr::mutate(
+      PI_med    = fmt_time_safe(PI_med),
+      PI95_low  = fmt_time_safe(PI95_low),
+      PI95_high = fmt_time_safe(PI95_high)
+    )
+
+  list(
+    predictions = predictions_formatted,
+    predictions_sec = predictions_sec,
+    yrep = yrep
+  )
+}
+
+#' Get Bayesian grid data for plotting
+#' @param bayes_predictions List returned by get_bayes_predictions
+#' @return Data frame with cups, PI_med_sec, PI_low_sec, PI_high_sec
+get_bayes_plot_data <- function(bayes_predictions) {
+  bayes_predictions$predictions_sec %>%
+    dplyr::mutate(
+      PI_med_sec  = pmax(0, PI_med),
+      PI_low_sec  = pmax(0, PI95_low),
+      PI_high_sec = pmax(0, PI95_high)
     )
 }
