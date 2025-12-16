@@ -41,7 +41,7 @@ create_bayes_plot <- function(df, bayes_plot_df) {
     ) +
     ggplot2::geom_line(
       data = bayes_plot_df,
-      ggplot2::aes(x = cups, y = PI_med_sec),
+      ggplot2::aes(x = cups, y = estimate_sec),
       linewidth = 1
     ) +
     ggplot2::labs(

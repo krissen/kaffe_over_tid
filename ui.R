@@ -28,26 +28,61 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      h4("Prediktioner"),
-      p(class = "description-text",
-        "Prognoser 1-10 koppar"),
-      tableOutput("predictions_table"),
+      h4("Prediktioner (1-10 koppar)"),
+
+      h5("Klassisk modell"),
+      tableOutput("predictions_table_klassisk"),
+
+      conditionalPanel(
+        condition = "output.bayes_available",
+        hr(),
+        h5("Bayes-modell"),
+        tableOutput("predictions_table_bayes")
+      ),
+
       hr(),
-      downloadButton("download_predictions", "Ladda ner CSV", class = "btn-success")
+      downloadButton("download_predictions", "Ladda ner CSV (båda)", class = "btn-success"),
+      p(class = "info-text", style = "margin-top: 10px;",
+        "Exporterar båda modellernas prediktioner i samma fil.")
     ),
-    
+
     mainPanel(
       tabsetPanel(
-        tabPanel("Plot", 
+        tabPanel("Klassisk",
                  div(class = "plot-container",
-                   plotOutput("classical_plot", height = "500px")
+                   plotOutput("classical_plot", height = "450px")
                  ),
-                 hr(),
                  div(class = "interpretation-section",
                    h4("Tolkning:"),
                    p("Punkterna visar faktiska mätningar från ", strong("Moccamaster Classic"), "."),
-                   p("Linjen visar modellens prediktion (kvadratisk modell)."),
-                   p("Det skuggade området visar 95% prediktionsintervall.")
+                   p("Linjen visar modellens prediktion (kvadratisk regression)."),
+                   p("Det skuggade området visar 95% prediktionsintervall."),
+                   p(class = "warning-text",
+                     em("OBS: Klassisk modell kan ge icke-monotona prediktioner vid höga koppantal."))
+                 )
+        ),
+        tabPanel("Bayes",
+                 conditionalPanel(
+                   condition = "output.bayes_available",
+                   div(class = "plot-container",
+                     plotOutput("bayes_plot", height = "450px")
+                   ),
+                   div(class = "interpretation-section",
+                     h4("Tolkning:"),
+                     p("Punkterna visar faktiska mätningar från ", strong("Moccamaster Classic"), "."),
+                     p("Linjen visar posterior median (Bayesiansk regression)."),
+                     p("Det skuggade området visar 95% prediktivt intervall (posterior predictive)."),
+                     p(class = "success-text",
+                       em("Bayes-modellen ger oftast monotona prediktioner tack vare regularisering."))
+                   )
+                 ),
+                 conditionalPanel(
+                   condition = "!output.bayes_available",
+                   div(class = "info-section",
+                     h4("Bayes ej tillgängligt"),
+                     p("Installera ", code("rstanarm"), " och ", code("loo"), " för Bayes-analys:"),
+                     pre("install.packages(c('rstanarm', 'loo'))")
+                   )
                  )
         ),
         tabPanel("Data",

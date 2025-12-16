@@ -136,14 +136,14 @@ get_bayes_predictions <- function(bayes_fit, cups_range = 1:10) {
 
   predictions_sec <- tibble::tibble(
     cups = cups_range,
-    PI_med    = apply(yrep, 2, median),
+    estimate  = apply(yrep, 2, median),
     PI95_low  = apply(yrep, 2, quantile, probs = 0.025),
     PI95_high = apply(yrep, 2, quantile, probs = 0.975)
   )
 
   predictions_formatted <- predictions_sec %>%
     dplyr::mutate(
-      PI_med    = fmt_time_safe(PI_med),
+      estimate  = fmt_time_safe(estimate),
       PI95_low  = fmt_time_safe(PI95_low),
       PI95_high = fmt_time_safe(PI95_high)
     )
@@ -157,12 +157,43 @@ get_bayes_predictions <- function(bayes_fit, cups_range = 1:10) {
 
 #' Get Bayesian grid data for plotting
 #' @param bayes_predictions List returned by get_bayes_predictions
-#' @return Data frame with cups, PI_med_sec, PI_low_sec, PI_high_sec
+#' @return Data frame with cups, estimate_sec, PI_low_sec, PI_high_sec
 get_bayes_plot_data <- function(bayes_predictions) {
   bayes_predictions$predictions_sec %>%
     dplyr::mutate(
-      PI_med_sec  = pmax(0, PI_med),
-      PI_low_sec  = pmax(0, PI95_low),
-      PI_high_sec = pmax(0, PI95_high)
+      estimate_sec = pmax(0, estimate),
+      PI_low_sec   = pmax(0, PI95_low),
+      PI_high_sec  = pmax(0, PI95_high)
     )
+}
+
+#' Create combined predictions data frame for export
+#' @param classical_results Results from fit_classical_models
+#' @param bayes_predictions Predictions from get_bayes_predictions (or NULL)
+#' @return Data frame with both models' predictions
+create_combined_predictions <- function(classical_results, bayes_predictions = NULL) {
+  klassisk <- classical_results$predictions_formatted %>%
+    dplyr::rename(
+      klassisk_estimate = estimate,
+      klassisk_PI95_low = PI95_low,
+      klassisk_PI95_high = PI95_high
+    )
+
+  if (is.null(bayes_predictions)) {
+    return(klassisk %>% dplyr::mutate(
+      bayes_estimate = NA_character_,
+      bayes_PI95_low = NA_character_,
+      bayes_PI95_high = NA_character_
+    ))
+  }
+
+  bayes <- bayes_predictions$predictions %>%
+    dplyr::select(-cups) %>%
+    dplyr::rename(
+      bayes_estimate = estimate,
+      bayes_PI95_low = PI95_low,
+      bayes_PI95_high = PI95_high
+    )
+
+  dplyr::bind_cols(klassisk, bayes)
 }
