@@ -147,12 +147,12 @@ ui <- fluidPage(
         tabPanel("Data",
                  h3("Dataset och ny mätning"),
                  h4("Lägg till ny mätning"),
-                 numericInput("cups_input", "Antal koppar:", value = 3, min = 1, max = 20),
+                 textInput("cups_input", "Antal koppar:", value = "3", placeholder = "Ex: 4 eller 4,5"),
                  textInput("time_input", "Tid (m:ss):", value = "3:00", placeholder = "Ex: 3:30"),
                  actionButton("add_button", "Lägg till", class = "btn-primary"),
                  div(class = "info-text",
-                   p(style = "margin: 0;", strong("Tidsformat:"), "minuter:sekunder (ex: 3:30)"),
-                   p(style = "margin: 5px 0 0 0;", "Accepterar också 3'30, 3m30s, etc.")
+                   p(style = "margin: 0;", strong("Koppar:"), "heltal eller decimal (4 eller 4,5)"),
+                   p(style = "margin: 5px 0 0 0;", strong("Tid:"), "m:ss, 3'30, 3m30s, etc.")
                  ),
                  hr(),
                  h4("Aktuellt dataset"),

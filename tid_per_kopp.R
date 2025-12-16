@@ -1,6 +1,12 @@
 #!/usr/bin/env Rscript
 # tid_per_kopp.R
 # Kaffekok: logga i CSV (m:ss) + rapportera kvadratisk modell + PI + (Bayes i bakgrunden)
+#
+# Användning:
+#   Rscript tid_per_kopp.R                    # Kör analys
+#   Rscript tid_per_kopp.R 4,5 3:30           # Lägg till data, kör analys
+#   Rscript tid_per_kopp.R --add 4,5 3:30     # Samma som ovan
+#   Rscript tid_per_kopp.R --help             # Visa hjälp
 
 # ============================
 # 0) Inställningar
@@ -15,6 +21,58 @@ close_threshold_aic  <- 2.0   # ΔAIC < 2 => "nära"
 close_threshold_loo  <- 1.0   # |elpd_diff| < 1 => "nära" (grovt)
 
 # ============================
+# 0b) Hantera kommandoradsargument
+# ============================
+args <- commandArgs(trailingOnly = TRUE)
+
+# Hjälpfunktion
+show_help <- function() {
+  cat("
+Användning: Rscript tid_per_kopp.R [koppar tid]
+
+Alternativ:
+  (inga argument)       Kör analys på befintlig data
+  koppar tid            Lägg till mätning och kör analys
+  --add koppar tid      Samma som ovan
+  --help, -h            Visa denna hjälp
+
+Exempel:
+  Rscript tid_per_kopp.R              # Bara analys
+  Rscript tid_per_kopp.R 4 3:30       # Lägg till 4 koppar, 3:30
+  Rscript tid_per_kopp.R 4,5 3:30     # Lägg till 4,5 koppar (decimalkomma OK)
+  Rscript tid_per_kopp.R 4.5 3:30     # Lägg till 4.5 koppar (decimalpunkt OK)
+
+")
+  quit(status = 0)
+}
+
+# Parsa argument
+add_cups <- NULL
+add_time <- NULL
+
+if (length(args) > 0) {
+  if (args[1] %in% c("--help", "-h")) {
+    show_help()
+  } else if (args[1] == "--add") {
+    if (length(args) < 3) {
+      cat("Fel: --add kräver två argument (koppar och tid)\n")
+      cat("Exempel: Rscript tid_per_kopp.R --add 4,5 3:30\n")
+      quit(status = 1)
+    }
+    add_cups <- args[2]
+    add_time <- args[3]
+  } else if (length(args) >= 2) {
+    # Anta att det är koppar och tid utan --add
+    add_cups <- args[1]
+    add_time <- args[2]
+  } else {
+    cat("Fel: Om du anger argument, ange både koppar och tid\n")
+    cat("Exempel: Rscript tid_per_kopp.R 4,5 3:30\n")
+    quit(status = 1)
+  }
+}
+
+# ============================
 # 1) Ladda delade bibliotek
 # ============================
 source("R/load_libs.R")
@@ -23,6 +81,19 @@ source("R/load_libs.R")
 # 2) Skapa ny CSV om den saknas
 # ============================
 initialize_csv_if_missing(csv_path)
+
+# ============================
+# 2b) Lägg till ny mätning om angiven
+# ============================
+if (!is.null(add_cups) && !is.null(add_time)) {
+  tryCatch({
+    add_coffee_entry(csv_path, add_cups, add_time)
+    cat("\n✓ Tillagt: ", add_cups, " koppar, ", add_time, "\n", sep = "")
+  }, error = function(e) {
+    cat("\nFel vid tillägg av data: ", e$message, "\n", sep = "")
+    quit(status = 1)
+  })
+}
 
 # ============================
 # 3) Läs CSV

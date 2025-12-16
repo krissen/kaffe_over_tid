@@ -1,6 +1,17 @@
 # data_utils.R
 # Shared functions for data loading and validation
 
+#' Parse cups value with support for both "," and "." as decimal separator
+#' @param x Value to parse (numeric or character)
+#' @return Numeric value
+parse_cups <- function(x) {
+  if (is.numeric(x)) return(x)
+  x <- as.character(x)
+  # Replace comma with dot for decimal parsing
+  x <- gsub(",", ".", x)
+  as.numeric(x)
+}
+
 #' Load and validate coffee data from CSV
 #' @param csv_path Path to CSV file
 #' @return Tibble with columns: cups, t, sec
@@ -27,7 +38,7 @@ load_coffee_data <- function(csv_path) {
 
   df <- df0 %>%
     dplyr::mutate(
-      cups = as.integer(cups),
+      cups = vapply(cups, parse_cups, numeric(1)),
       t    = as.character(t),
       sec  = vapply(t, parse_time, numeric(1))
     ) %>%
@@ -40,13 +51,13 @@ load_coffee_data <- function(csv_path) {
 
 #' Add new row to CSV file
 #' @param csv_path Path to CSV file
-#' @param cups Number of cups
+#' @param cups Number of cups (supports both "," and "." as decimal separator)
 #' @param time_str Time string in format "m:ss"
 #' @return TRUE on success
 add_coffee_entry <- function(csv_path, cups, time_str) {
-  # Validate input
-  cups <- as.integer(cups)
-  if (is.na(cups) || cups < 1) stop("Ogiltigt antal koppar")
+  # Validate input - support decimal cups with both "," and "."
+  cups <- parse_cups(cups)
+  if (is.na(cups) || cups < 0.5) stop("Ogiltigt antal koppar")
   
   # Validate time format
   tryCatch(
@@ -72,7 +83,7 @@ add_coffee_entry <- function(csv_path, cups, time_str) {
     stop("CSV måste ha tidskolumnen 't' (eller 'time'/'tid').")
   }
 
-  df <- df %>% dplyr::mutate(cups = as.integer(cups), t = as.character(t))
+  df <- df %>% dplyr::mutate(cups = vapply(cups, parse_cups, numeric(1)), t = as.character(t))
 
   # Normalisera tidssträngar till formatet m:ss för både befintliga och nya rader
   normalize_time <- function(x) fmt_time(parse_time(x))
