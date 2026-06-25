@@ -1,6 +1,22 @@
 .DS_Store
 output/
 tid_per_kopp_old.R
+
+# R
 .Rhistory
 .RData
 .Rproj.user
+.Rcache/
+renv/library/
+renv/local/
+renv/cache/
+packrat/lib*/
+*.rds.cache
+
+# Cache
+.cache/
+*.cache
+__pycache__/
+
+# Claude Code (lokala inställningar)
+.claude/settings.local.json
